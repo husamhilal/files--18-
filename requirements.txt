@@ -1,0 +1,15 @@
+Flask==3.0.0
+Flask-SocketIO==5.3.4
+python-socketio[client]==5.8.0
+python-dotenv==1.0.0
+
+azure-ai-formrecognizer==3.3.0
+azure-identity==1.15.0
+azure-core==1.29.5
+
+openai==1.51.2
+httpx==0.27.2
+Werkzeug==3.0.1
+
+# MCP (Model Context Protocol) for server/client over stdio
+mcp==1.0.0

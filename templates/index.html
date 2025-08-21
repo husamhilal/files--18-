@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Banking Assistant - Upload & Chat{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card">
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-robot"></i>
+          <h5 class="mb-0 ms-2">AI Banking Assistant</h5>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="docDropdownBtn">
+              <i class="fas fa-file me-1"></i> Documents
+            </button>
+            <ul class="dropdown-menu" id="documentsMenu">
+              <!-- populated by JS -->
+            </ul>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" id="clearChatBtn"><i class="fas fa-trash me-1"></i>Clear</button>
+          <button class="btn btn-outline-primary btn-sm" id="exportChatBtn"><i class="fas fa-download me-1"></i>Export</button>
+        </div>
+      </div>
+
+      <div class="card-body p-0 d-flex flex-column position-relative">
+        <!-- Messages -->
+        <div id="chatMessages" class="flex-grow-1 p-3 chat-area">
+          {% if not documents %}
+          <div class="text-center text-muted py-4">
+            <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+            <p>Chat now about your accounts or upload a bill to enhance context.<br/>Drag & drop a file or use the paperclip.</p>
+          </div>
+          {% endif %}
+          {% if document_summary %}
+            <div class="alert alert-info"><strong>Summary:</strong> {{ document_summary|safe }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Typing -->
+        <div id="typingIndicator" class="px-3 py-2 d-none">
+          <div class="text-muted small"><i class="fas fa-robot me-2"></i>Assistant is typing…</div>
+        </div>
+
+        <!-- Unified Upload + Chat Input -->
+        <div class="border-top p-3 position-relative">
+          <!-- Drag & drop overlay -->
+          <div id="dropOverlay" class="drop-overlay d-none">
+            <div class="drop-inner">
+              <i class="fas fa-file-upload fa-2x mb-2"></i>
+              <p class="mb-0">Drop your PDF or image here</p>
+              <small>PDF, PNG, JPG, JPEG</small>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <button class="btn btn-outline-secondary" id="uploadBtn" title="Upload document">
+              <i class="fas fa-paperclip"></i>
+            </button>
+            <input type="file" id="uploadInput" accept=".pdf,.png,.jpg,.jpeg" hidden />
+            <input type="text" id="messageInput" class="form-control"
+                   placeholder="{{ (documents|length > 0) and 'Ask about your document or your accounts…' or 'Ask about your accounts or upload a bill…' }}">
+            <button class="btn btn-primary" id="sendMessageBtn">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          <div class="form-text mt-2 d-flex justify-content-between">
+            <small id="chatStatus" class="text-muted">
+              {% if services_status.document_intelligence and services_status.chat_service and services_status.credential and services_status.data %}
+                Ready{% if not documents %} (no document uploaded yet){% endif %}
+              {% else %}
+                Some services unavailable. Check /health.
+              {% endif %}
+            </small>
+            <small id="tokenUsage" class="text-muted"></small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  initializeChat('{{ session_id }}', {{ (documents|length > 0)|tojson }}, {{ documents|tojson }}, '{{ selected_document_id }}');
+});
+</script>
+{% endblock %}
