@@ -122,6 +122,16 @@ def get_selected_document(chat_session):
 def index():
     session_id = get_session_id()
     cs = get_chat_session(session_id)
+
+    # Resolve display name (prefer DB name; fallback to a friendly default)
+    user_display_name = "Husam Hilal"
+    try:
+        if data_service:
+            user_row = data_service.get_user(cs['user_id'])
+            user_display_name = (user_row or {}).get('name') or user_display_name
+    except Exception:
+        pass
+
     services_status = {
         'document_intelligence': doc_intelligence is not None,
         'chat_service': chat_service is not None,
@@ -134,7 +144,8 @@ def index():
                            services_status=services_status,
                            documents=[{'id': d['id'], 'filename': d['filename']} for d in cs['documents']],
                            selected_document_id=cs['selected_document_id'],
-                           document_summary=selected_doc.get('summary') if selected_doc else None)
+                           document_summary=selected_doc.get('summary') if selected_doc else None,
+                           user_display_name=user_display_name)
 
 # Unified analyze API
 @app.route('/api/analyze', methods=['POST'])
